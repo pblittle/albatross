@@ -1,0 +1,36 @@
+# Build artifacts
+*.o
+*.a
+*.so
+
+# Executables
+*.exe
+*.out
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# Dependency directories
+node_modules/
+vendor/
+
+# Kubernetes
+kubeconfig
+
+# Temporary files
+*.tmp
+*.temp
