@@ -9,7 +9,15 @@ Albatross is a specialized tool designed for processing and analyzing golf shot 
 - Normalize club types (e.g., "3 wood" -> "3W")
 - Determine shot types (Tee or Approach)
 - Calculate median target distances for each club type
-- Export processed data to CSV
+- Export processed data to CSV in Shot Pattern format
+
+## Launch Monitor Support
+
+Currently, Albatross supports the [MLM2Pro](https://rapsodo.com/pages/mlm2pro-golf-simulator) launch monitor. If you need support for additional launch monitors, please open an issue on our GitHub repository.
+
+## Output Format
+
+Albatross currently outputs processed data in the [Shot Pattern](https://shotpattern.app/) format. This is the default and only output format available.
 
 ## Packages
 
@@ -97,11 +105,10 @@ This will run all tests in the project, including unit tests and end-to-end test
 ## Contributing
 
 1. Fork it
-2. Checkout the `main` branch (`git checkout -b develop`)
-3. Create your feature branch (`git checkout -b my-new-feature`)
-4. Sign and commit your changes (`git commit -sam 'Add some feature'`)
-5. Push to the branch (`git push origin my-new-feature`)
-6. Create new Pull Request
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Sign and commit your changes (`git commit -sam 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
 
 ## License
 
