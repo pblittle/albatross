@@ -33,7 +33,7 @@ cd albatross
 Albatross is a command-line application. Here's how to use it:
 
 ```shell
-go run main.go &lt;launch_monitor_type&gt; &lt;input_csv_file&gt;
+go run main.go <launch_monitor_type> <input_csv_file>
 ```
 
 For example:
