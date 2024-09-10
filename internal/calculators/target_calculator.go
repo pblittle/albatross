@@ -1,3 +1,4 @@
+// Package calculators provides functions for performing calculations on shot data.
 package calculators
 
 import (
@@ -7,7 +8,8 @@ import (
 )
 
 // CalculateTargets computes the median target distance for each club type
-// and updates the Target field in each ShotData struct.
+// and updates the Target field in each ProcessedShotData struct.
+// This function modifies the input slice in-place.
 func CalculateTargets(shotData *[]models.ProcessedShotData) {
 	// Group shots by club type
 	clubShots := make(map[string][]float64)
@@ -30,6 +32,8 @@ func CalculateTargets(shotData *[]models.ProcessedShotData) {
 
 // calculateMedian computes the median value from a slice of float64 numbers.
 // It handles both odd and even-length slices.
+// The function sorts the input slice and returns the middle value (or average of two middle values).
+// If the input slice is empty, it returns 0.
 func calculateMedian(numbers []float64) float64 {
 	sort.Float64s(numbers)
 	length := len(numbers)

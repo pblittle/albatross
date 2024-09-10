@@ -1,3 +1,5 @@
+// Package main is the entry point for the Albatross application.
+// It processes shot data from various launch monitors and calculates targets.
 package main
 
 import (
@@ -11,6 +13,8 @@ import (
 	"albatross/utils"
 )
 
+// main is the entry point of the application. It handles command-line arguments,
+// processes shot data, calculates targets, and writes the results to a file.
 func main() {
 	// Parse command-line arguments
 	if len(os.Args) != 3 {
@@ -25,7 +29,7 @@ func main() {
 		log.Fatalf("Error: Invalid launch monitor type '%s'. Supported type is mlm2pro.", os.Args[1])
 	}
 
-	// Process shot data
+	// Process shot data from the input file
 	shotData, err := parsers.ProcessShotData(inputFile, launchMonitorType)
 	if err != nil {
 		log.Fatalf("Error processing shot data: %v", err)
@@ -33,12 +37,12 @@ func main() {
 
 	log.Printf("Processed shot data: %+v", shotData)
 
-	// Calculate targets
+	// Calculate targets based on the processed shot data
 	calculators.CalculateTargets(&shotData)
 
 	log.Printf("Calculated targets: %+v", shotData)
 
-	// Write processed data to output file
+	// Write processed data to an output file
 	outputFile := utils.ReplaceFileExtension(inputFile, "_processed.csv")
 	writer := writer.ShotPatternWriter{}
 	if err := writer.Write(outputFile, shotData); err != nil {
@@ -48,12 +52,14 @@ func main() {
 	log.Printf("Successfully processed %d shots and saved results to %s", len(shotData), outputFile)
 }
 
-// normalizeLaunchMonitorType converts the launch monitor type to lowercase for consistency
+// normalizeLaunchMonitorType converts the launch monitor type to lowercase for consistency.
+// This ensures that the type check is case-insensitive.
 func normalizeLaunchMonitorType(launchMonitorType string) string {
 	return strings.ToLower(launchMonitorType)
 }
 
-// isValidLaunchMonitorType checks if the provided launch monitor type is supported
+// isValidLaunchMonitorType checks if the provided launch monitor type is supported.
+// Currently, only "mlm2pro" is supported.
 func isValidLaunchMonitorType(launchMonitorType string) bool {
 	return launchMonitorType == "mlm2pro"
 }

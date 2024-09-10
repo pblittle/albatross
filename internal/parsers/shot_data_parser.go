@@ -1,3 +1,4 @@
+// Package parsers provides functionality for parsing shot data from various launch monitor types.
 package parsers
 
 import (
@@ -13,21 +14,26 @@ import (
 	"albatross/internal/reader"
 )
 
+// headerPattern is a regular expression used to identify header rows in the CSV file.
 var headerPattern = regexp.MustCompile(`(?i)(club type|total distance|side carry)`)
 
-// ProcessShotData reads and processes shot data from a CSV file
+// ProcessShotData reads and processes shot data from a CSV file.
+// It supports different launch monitor types and returns a slice of ProcessedShotData.
 func ProcessShotData(inputFile string, launchMonitorType string) ([]models.ProcessedShotData, error) {
+	// Open the input file
 	file, err := os.Open(inputFile)
 	if err != nil {
 		return nil, fmt.Errorf("opening file: %w", err)
 	}
 	defer file.Close()
 
+	// Set up CSV reader
 	csvReader := csv.NewReader(file)
 	csvReader.Comma = ',' // Using comma as separator
 	csvReader.LazyQuotes = true
 	csvReader.FieldsPerRecord = -1 // Allow variable number of fields
 
+	// Create appropriate launch monitor based on the type
 	var launchMonitor models.LaunchMonitor
 	switch launchMonitorType {
 	case "mlm2pro":
@@ -40,6 +46,7 @@ func ProcessShotData(inputFile string, launchMonitorType string) ([]models.Proce
 	var headers []string
 	inDataBlock := false
 
+	// Read and process each row of the CSV file
 	for {
 		row, err := csvReader.Read()
 		if err != nil {
@@ -53,6 +60,7 @@ func ProcessShotData(inputFile string, launchMonitorType string) ([]models.Proce
 			continue
 		}
 
+		// Check if the current row is a header row
 		if isHeader(row) {
 			headers = normalizeHeaders(row)
 			inDataBlock = true
@@ -64,11 +72,13 @@ func ProcessShotData(inputFile string, launchMonitorType string) ([]models.Proce
 			continue
 		}
 
+		// Check if we've reached the end of the data block
 		if isEmptyRow(row) || strings.HasPrefix(strings.ToLower(row[0]), "average") {
 			inDataBlock = false
 			continue
 		}
 
+		// Parse and process the row data
 		rawData, err := launchMonitor.ParseRow(row, headers)
 		if err != nil {
 			log.Printf("Skipping row due to error: %v", err)
@@ -86,7 +96,7 @@ func ProcessShotData(inputFile string, launchMonitorType string) ([]models.Proce
 	return shotData, nil
 }
 
-// isHeader checks if a row is a header row
+// isHeader checks if a row is a header row by matching against the headerPattern.
 func isHeader(row []string) bool {
 	if len(row) == 0 {
 		return false
@@ -99,7 +109,7 @@ func isHeader(row []string) bool {
 	return false
 }
 
-// normalizeHeaders standardizes header names
+// normalizeHeaders standardizes header names by converting them to lowercase and trimming whitespace.
 func normalizeHeaders(row []string) []string {
 	normalized := make([]string, len(row))
 	for i, header := range row {
@@ -108,7 +118,7 @@ func normalizeHeaders(row []string) []string {
 	return normalized
 }
 
-// isEmptyRow checks if a row is empty
+// isEmptyRow checks if a row is empty by verifying that all cells are empty strings when trimmed.
 func isEmptyRow(row []string) bool {
 	for _, cell := range row {
 		if strings.TrimSpace(cell) != "" {
