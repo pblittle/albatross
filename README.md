@@ -19,54 +19,6 @@ Currently, Albatross supports the [MLM2Pro](https://rapsodo.com/pages/mlm2pro-go
 
 Albatross currently outputs processed data in the [Shot Pattern](https://shotpattern.app/) format. This is the default and only output format available.
 
-## Packages
-
-### Models (`internal/models`)
-
-Defines core data structures and interfaces:
-
-- `LaunchMonitor` interface for different launch monitor types
-- `RawShotData` struct for storing raw shot data
-- `ProcessedShotData` struct for storing processed shot information
-
-### Reader (`internal/reader`)
-
-Provides implementations for different types of launch monitors:
-
-- `MLM2ProLaunchMonitor` for processing data from MLM2Pro launch monitors
-
-### Parsers (`internal/parsers`)
-
-Contains functions for reading and parsing shot data:
-
-- `ProcessShotData` function for reading and processing CSV files
-
-### Processors (`internal/processors`)
-
-Provides functionality for processing golf-related data:
-
-- `NormalizeClubType` function for standardizing club type notation
-- `DetermineShotType` function for categorizing shots as Tee or Approach
-
-### Calculators (`internal/calculators`)
-
-Performs statistical analysis of golf shot data:
-
-- `CalculateTargets` function for computing median target distances for each club type
-
-### Utils (`utils`)
-
-Offers utility functions for common tasks:
-
-- `ReplaceFileExtension` function for manipulating file names
-- `WriteCSV` function for exporting processed data to CSV files
-
-### Writer (`internal/writer`)
-
-Handles writing processed data to output files:
-
-- `ShotPatternWriter` for writing processed shot data to CSV
-
 ## Installation
 
 To install this project, make sure you have Go installed on your system, then clone the repository:
@@ -81,7 +33,7 @@ cd albatross
 Albatross is a command-line application. Here's how to use it:
 
 ```shell
-go run main.go <launch_monitor_type> <input_csv_file>
+go run main.go &lt;launch_monitor_type&gt; &lt;input_csv_file&gt;
 ```
 
 For example:
