@@ -5,11 +5,11 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"regexp"
 	"strings"
 
+	"albatross/internal/logging"
 	"albatross/internal/models"
 	"albatross/internal/reader"
 )
@@ -64,7 +64,9 @@ func ProcessShotData(inputFile string, launchMonitorType string) ([]models.Proce
 		if isHeader(row) {
 			headers = normalizeHeaders(row)
 			inDataBlock = true
-			log.Printf("Found headers: %v", headers)
+			logging.Debug("Found headers", logging.Fields{
+				"headers": headers,
+			})
 			continue
 		}
 
@@ -81,7 +83,9 @@ func ProcessShotData(inputFile string, launchMonitorType string) ([]models.Proce
 		// Parse and process the row data
 		rawData, err := launchMonitor.ParseRow(row, headers)
 		if err != nil {
-			log.Printf("Skipping row due to error: %v", err)
+			logging.Error("Skipping row due to error", err, logging.Fields{
+				"row": row,
+			})
 			continue
 		}
 
@@ -92,6 +96,10 @@ func ProcessShotData(inputFile string, launchMonitorType string) ([]models.Proce
 	if len(shotData) == 0 {
 		return nil, fmt.Errorf("no valid data found in the file")
 	}
+
+	logging.Info("Processed shot data", logging.Fields{
+		"shotsProcessed": len(shotData),
+	})
 
 	return shotData, nil
 }

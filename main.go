@@ -3,11 +3,11 @@
 package main
 
 import (
-	"log"
 	"os"
 	"strings"
 
 	"albatross/internal/calculators"
+	"albatross/internal/logging"
 	"albatross/internal/parsers"
 	"albatross/internal/writer"
 	"albatross/utils"
@@ -16,9 +16,12 @@ import (
 // main is the entry point of the application. It handles command-line arguments,
 // processes shot data, calculates targets, and writes the results to a file.
 func main() {
+	// Initialize the logger
+	logging.InitLogger()
+
 	// Parse command-line arguments
 	if len(os.Args) != 3 {
-		log.Fatal("Usage: go run main.go <launch_monitor_type> <input_csv_file>")
+		logging.Fatal("Usage: go run main.go <launch_monitor_type> <input_csv_file>", nil)
 	}
 
 	launchMonitorType := normalizeLaunchMonitorType(os.Args[1])
@@ -26,30 +29,46 @@ func main() {
 
 	// Validate launch monitor type
 	if !isValidLaunchMonitorType(launchMonitorType) {
-		log.Fatalf("Error: Invalid launch monitor type '%s'. Supported type is mlm2pro.", os.Args[1])
+		logging.Fatal("Error: Invalid launch monitor type. Supported type is mlm2pro.", logging.Fields{
+			"providedType": launchMonitorType,
+		})
 	}
 
 	// Process shot data from the input file
 	shotData, err := parsers.ProcessShotData(inputFile, launchMonitorType)
 	if err != nil {
-		log.Fatalf("Error processing shot data: %v", err)
+		logging.Error("Error processing shot data", err, logging.Fields{
+			"inputFile":         inputFile,
+			"launchMonitorType": launchMonitorType,
+		})
+		os.Exit(1)
 	}
 
-	log.Printf("Processed shot data: %+v", shotData)
+	logging.Info("Processed shot data", logging.Fields{
+		"count": len(shotData),
+	})
 
 	// Calculate targets based on the processed shot data
 	calculators.CalculateTargets(&shotData)
 
-	log.Printf("Calculated targets: %+v", shotData)
+	logging.Debug("Calculated targets", logging.Fields{
+		"shotData": shotData,
+	})
 
 	// Write processed data to an output file
 	outputFile := utils.ReplaceFileExtension(inputFile, "_processed.csv")
 	writer := writer.ShotPatternWriter{}
 	if err := writer.Write(outputFile, shotData); err != nil {
-		log.Fatalf("Error writing output file: %v", err)
+		logging.Error("Error writing output file", err, logging.Fields{
+			"outputFile": outputFile,
+		})
+		os.Exit(1)
 	}
 
-	log.Printf("Successfully processed %d shots and saved results to %s", len(shotData), outputFile)
+	logging.Info("Successfully processed shots and saved results", logging.Fields{
+		"shotsProcessed": len(shotData),
+		"outputFile":     outputFile,
+	})
 }
 
 // normalizeLaunchMonitorType converts the launch monitor type to lowercase for consistency.
