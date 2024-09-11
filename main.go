@@ -3,6 +3,7 @@
 package main
 
 import (
+	"flag"
 	"os"
 	"strings"
 
@@ -19,27 +20,31 @@ func main() {
 	// Initialize the logger
 	logging.InitLogger()
 
-	// Parse command-line arguments
-	if len(os.Args) != 3 {
-		logging.Fatal("Usage: go run main.go <launch_monitor_type> <input_csv_file>", nil)
+	// Define command-line flags
+	launchMonitorType := flag.String("type", "", "Launch monitor type (e.g., mlm2pro)")
+	inputFile := flag.String("input", "", "Input CSV file path")
+	flag.Parse()
+
+	// Validate command-line arguments
+	if *launchMonitorType == "" || *inputFile == "" {
+		logging.Fatal("Usage: go run main.go -type <launch_monitor_type> -input <input_csv_file>", nil)
 	}
 
-	launchMonitorType := normalizeLaunchMonitorType(os.Args[1])
-	inputFile := os.Args[2]
+	normalizedType := normalizeLaunchMonitorType(*launchMonitorType)
 
 	// Validate launch monitor type
-	if !isValidLaunchMonitorType(launchMonitorType) {
+	if !isValidLaunchMonitorType(normalizedType) {
 		logging.Fatal("Error: Invalid launch monitor type. Supported type is mlm2pro.", logging.Fields{
-			"providedType": launchMonitorType,
+			"providedType": normalizedType,
 		})
 	}
 
 	// Process shot data from the input file
-	shotData, err := parsers.ProcessShotData(inputFile, launchMonitorType)
+	shotData, err := parsers.ProcessShotData(*inputFile, normalizedType)
 	if err != nil {
 		logging.Error("Error processing shot data", err, logging.Fields{
-			"inputFile":         inputFile,
-			"launchMonitorType": launchMonitorType,
+			"inputFile":         *inputFile,
+			"launchMonitorType": normalizedType,
 		})
 		os.Exit(1)
 	}
@@ -56,7 +61,7 @@ func main() {
 	})
 
 	// Write processed data to an output file
-	outputFile := utils.ReplaceFileExtension(inputFile, "_processed.csv")
+	outputFile := utils.ReplaceFileExtension(*inputFile, "_processed.csv")
 	writer := writer.ShotPatternWriter{}
 	if err := writer.Write(outputFile, shotData); err != nil {
 		logging.Error("Error writing output file", err, logging.Fields{

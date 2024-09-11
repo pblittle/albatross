@@ -33,14 +33,19 @@ cd albatross
 Albatross is a command-line application. Here's how to use it:
 
 ```shell
-go run main.go <launch_monitor_type> <input_csv_file>
+go run main.go -type <launch_monitor_type> -input <input_csv_file>
 ```
 
 For example:
 
 ```shell
-go run main.go mlm2pro input_data.csv
+go run main.go -type mlm2pro -input input_data.csv
 ```
+
+Command-line flags:
+
+- `-type`: Specifies the launch monitor type (e.g., "mlm2pro")
+- `-input`: Specifies the path to the input CSV file
 
 This will process the `input_data.csv` file using the MLM2Pro launch monitor type and output a file named `input_data_processed.csv` in the same directory.
 
