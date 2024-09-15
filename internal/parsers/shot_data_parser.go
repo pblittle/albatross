@@ -23,7 +23,7 @@ func ProcessShotData(inputFile string, launchMonitorType string) ([]models.Proce
 	// Open the input file
 	file, err := os.Open(inputFile)
 	if err != nil {
-		return nil, fmt.Errorf("opening file: %w", err)
+		return nil, fmt.Errorf("opening file '%s': %w", inputFile, err)
 	}
 	defer file.Close()
 
@@ -45,15 +45,18 @@ func ProcessShotData(inputFile string, launchMonitorType string) ([]models.Proce
 	var shotData []models.ProcessedShotData
 	var headers []string
 	inDataBlock := false
+	lineNumber := 0 // Initialize line number
 
 	// Read and process each row of the CSV file
 	for {
 		row, err := csvReader.Read()
+		lineNumber++ // Increment line number for each read operation
+
 		if err != nil {
 			if err == io.EOF {
 				break
 			}
-			return nil, fmt.Errorf("reading row: %w", err)
+			return nil, fmt.Errorf("error reading row %d: %w", lineNumber, err)
 		}
 
 		if len(row) == 0 {
@@ -65,6 +68,7 @@ func ProcessShotData(inputFile string, launchMonitorType string) ([]models.Proce
 			headers = normalizeHeaders(row)
 			inDataBlock = true
 			logging.Debug("Found headers", logging.Fields{
+				"line":    lineNumber,
 				"headers": headers,
 			})
 			continue
@@ -83,8 +87,9 @@ func ProcessShotData(inputFile string, launchMonitorType string) ([]models.Proce
 		// Parse and process the row data
 		rawData, err := launchMonitor.ParseRow(row, headers)
 		if err != nil {
-			logging.Error("Skipping row due to error", err, logging.Fields{
-				"row": row,
+			logging.Error(fmt.Sprintf("Skipping row %d due to error", lineNumber), err, logging.Fields{
+				"line": lineNumber,
+				"row":  row,
 			})
 			continue
 		}
@@ -94,11 +99,12 @@ func ProcessShotData(inputFile string, launchMonitorType string) ([]models.Proce
 	}
 
 	if len(shotData) == 0 {
-		return nil, fmt.Errorf("no valid data found in the file")
+		return nil, fmt.Errorf("no valid data found in the file '%s'", inputFile)
 	}
 
 	logging.Info("Processed shot data", logging.Fields{
 		"shotsProcessed": len(shotData),
+		"file":           inputFile,
 	})
 
 	return shotData, nil
